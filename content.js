@@ -4,21 +4,28 @@ function getCurrentDomain() {
   return window.location.hostname; // e.g. "www.example.com"
 }
 
-// Create a <style> element for dark mode with reduced contrast
+// Create a <style> element for dark mode that preserves page contrast.
 const darkModeStyle = `
-  html, body {
-    background-color: #222 !important;
-    color: #ddd !important;
+  html.dark-mode-toggle-enabled {
+    background: #fff !important;
+    color-scheme: light !important;
+    filter: invert(1) hue-rotate(180deg) !important;
   }
 
-  /* Apply a slight neutral background for other elements */
-  * {
-    background: transparent !important;
-    color: inherit !important;
+  html.dark-mode-toggle-enabled body {
+    background: #fff !important;
   }
 
-  /* Optionally, you might try a subtle filter or partial invert on images,
-     but let's just leave them normal to avoid weird color issues */
+  html.dark-mode-toggle-enabled img,
+  html.dark-mode-toggle-enabled picture,
+  html.dark-mode-toggle-enabled video,
+  html.dark-mode-toggle-enabled canvas,
+  html.dark-mode-toggle-enabled iframe,
+  html.dark-mode-toggle-enabled embed,
+  html.dark-mode-toggle-enabled object,
+  html.dark-mode-toggle-enabled [style*="background-image"] {
+    filter: invert(1) hue-rotate(180deg) !important;
+  }
 `;
 
 let darkModeStyleElement = document.createElement("style");
@@ -28,11 +35,15 @@ darkModeStyleElement.textContent = darkModeStyle;
 // Functions to attach/remove the style element
 function enableDarkMode() {
   if (!document.getElementById("dark-mode-toggle-style")) {
-    document.head.appendChild(darkModeStyleElement);
+    const styleParent = document.head || document.documentElement;
+    styleParent.appendChild(darkModeStyleElement);
   }
+  document.documentElement.classList.add("dark-mode-toggle-enabled");
 }
 
 function disableDarkMode() {
+  document.documentElement.classList.remove("dark-mode-toggle-enabled");
+
   let existingStyle = document.getElementById("dark-mode-toggle-style");
   if (existingStyle) {
     existingStyle.remove();
